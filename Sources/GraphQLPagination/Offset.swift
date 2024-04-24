@@ -50,7 +50,7 @@ extension GraphBackwardPaginatable {
     public func makeOffsetPagination() -> OffsetPagination {
         switch (self.before?.intValue(), self.last) {
         case let (.some(before), .some(last)):
-            return OffsetPagination(offset: before - last - 1, count: last + 2)
+            return OffsetPagination(offset: max(0, before - last - 1), count: last + 2)
         case let (.some(before), .none):
             return OffsetPagination(offset: 0, count: before + 1)
         case let (.none, .some(last)):

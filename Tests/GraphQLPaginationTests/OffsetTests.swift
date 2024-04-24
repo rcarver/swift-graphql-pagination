@@ -56,5 +56,9 @@ final class OffsetTests: XCTestCase {
             Backward(last: 10, before: Cursor(rawValue: "a")).makeOffsetPagination(),
             OffsetPagination(offset: 0, count: 11)
         )
+        XCTAssertNoDifference(
+            Backward(last: 10, before: Cursor(intValue: 5)).makeOffsetPagination(),
+            OffsetPagination(offset: 0, count: 12)
+        )
     }
 }

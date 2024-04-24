@@ -339,6 +339,34 @@ final class BoundedTests: XCTestCase {
             )
         )
     }
+    func test_backward_invalid() {
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 10),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 0..<4,
+                nodes: [a, b, c, d],
+                cursors: [0, 1, 2, 3],
+                hasPrevious: false,
+                hasNext: false
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 4, before: 2),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: [0, 1],
+                hasPrevious: false,
+                hasNext: true
+            )
+        )
+    }
 }
 
 final class EdgeBuilderTests: XCTestCase {

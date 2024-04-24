@@ -176,13 +176,13 @@ extension Bounded {
         let range: Range<Int>
         switch (backward.last, backward.before) {
         case let (.some(last), .none):
-            range = (nodes.count - last)..<nodes.count
+            range = max(0, nodes.count - last)..<nodes.count
         case let (.none, .some(before)):
             let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
             range = 0..<index
         case let (.some(last), .some(before)):
             let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
-            range = (index - last)..<index
+            range = max(0, index - last)..<min(index, last)
         case (.none, .none):
             range = 0..<nodes.count
         }
