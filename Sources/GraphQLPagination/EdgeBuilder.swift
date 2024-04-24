@@ -8,9 +8,13 @@ enum CursorType {
     case index
 }
 
+public protocol GraphCursorable {
+    var cursor: Cursor { get }
+}
+
 struct EdgeBuilder<Node: GraphCursorable, Edge> {
     let nodes: [Node]
-    let transform: (Cursor, Node, Int) -> Edge
+    let transform: (Node, Cursor, Int) -> Edge
 }
 
 struct EdgesConstruction<Edge> {
@@ -18,15 +22,30 @@ struct EdgesConstruction<Edge> {
     let pageInfo: GraphPageInfo
 }
 
+extension EdgesConstruction: Equatable where Edge: Equatable {}
+
 extension EdgeBuilder {
     func makeEdges(cursor: CursorType) -> EdgesConstruction<Edge> {
+        guard !self.nodes.isEmpty else {
+            return EdgesConstruction(edges: [], pageInfo: .zero)
+        }
         switch cursor {
         case .identifier:
-            let edges = nodes.enumerated().map { self.transform($1.cursor, $1, $0) }
-            return EdgesConstruction(edges: edges, pageInfo: .zero)
+            let edges = nodes.enumerated().map { self.transform($1, $1.cursor, $0) }
+            return EdgesConstruction(edges: edges, pageInfo: GraphPageInfo(
+                hasPreviousPage: false,
+                hasNextPage: false,
+                startCursor: nodes.first?.cursor,
+                endCursor: nodes.last?.cursor
+            ))
         case .index:
-            let edges = nodes.enumerated().map { self.transform(Cursor(intValue: $0), $1, $0) }
-            return EdgesConstruction(edges: edges, pageInfo: .zero)
+            let edges = nodes.enumerated().map { self.transform($1, Cursor(intValue: $0), $0) }
+            return EdgesConstruction(edges: edges, pageInfo: GraphPageInfo(
+                hasPreviousPage: false,
+                hasNextPage: false,
+                startCursor: Cursor(intValue: 0),
+                endCursor: Cursor(intValue: nodes.count - 1)
+            ))
         }
     }
 //    func makeEdges<P: GraphPaginatable>(pagionation: P) -> EdgesConstruction<Edge> {

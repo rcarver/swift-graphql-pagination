@@ -1,9 +1,5 @@
 import Foundation
 
-public protocol GraphCursorable {
-    var cursor: Cursor { get }
-}
-
 protocol GraphForwardPaginatable {
     var first: Int? { get }
     var after: Cursor? { get }

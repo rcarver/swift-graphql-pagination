@@ -8,8 +8,14 @@ public struct Cursor: RawRepresentable, Hashable {
 }
 
 extension Cursor: ExpressibleByStringLiteral {
-    public init(stringLiteral value: StringLiteralType) {
+    public init(stringLiteral value: String) {
         self.rawValue = value
+    }
+}
+
+extension Cursor: ExpressibleByIntegerLiteral {
+    public init(integerLiteral value: Int) {
+        self.rawValue = String(describing: value)
     }
 }
 
