@@ -22,15 +22,14 @@ extension GraphPagination {
 }
 
 extension GraphPaginatable {
-    /// Convert graph pagination to offset pagination.
+    /// Convert bi-directional graph pagination to offset pagination.
     public func makeOffsetPagination() -> OffsetPagination {
-        guard let current = self.current else { return OffsetPagination() }
-        return current.makeOffsetPagination()
+        self.pagination?.makeOffsetPagination() ?? OffsetPagination()
     }
 }
 
 extension GraphForwardPaginatable {
-    /// Convert graph pagination to offset pagination.
+    /// Convert forward graph pagination to offset pagination.
     public func makeOffsetPagination() -> OffsetPagination {
         switch (self.after?.intValue(), self.first) {
         case let (.some(after), .some(first)):
@@ -46,7 +45,7 @@ extension GraphForwardPaginatable {
 }
 
 extension GraphBackwardPaginatable {
-    /// Convert graph pagination to offset pagination.
+    /// Convert backward graph pagination to offset pagination.
     public func makeOffsetPagination() -> OffsetPagination {
         switch (self.before?.intValue(), self.last) {
         case let (.some(before), .some(last)):

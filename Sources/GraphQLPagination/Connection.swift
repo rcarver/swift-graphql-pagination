@@ -41,7 +41,7 @@ extension BasicConnection {
         pagination: any GraphPaginatable,
         cursor: CursorType
     ) where Node: GraphCursorable {
-        self.init(nodes: nodes, pagination: pagination.current, cursor: cursor)
+        self.init(nodes: nodes, pagination: pagination.pagination, cursor: cursor)
     }
     /// Build a connection from nodes for any forward paginatable input.
     public init(
@@ -49,7 +49,7 @@ extension BasicConnection {
         pagination: any GraphForwardPaginatable,
         cursor: CursorType
     ) where Node: GraphCursorable {
-        self.init(nodes: nodes, pagination: pagination.current, cursor: cursor)
+        self.init(nodes: nodes, pagination: pagination.pagination, cursor: cursor)
     }
     /// Build a connection from nodes with optional pagination input.
     public init(

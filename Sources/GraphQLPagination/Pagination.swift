@@ -1,5 +1,16 @@
 import Foundation
 
+/// Pagination.
+public enum GraphPagination {
+    case forward(GraphForwardPagination)
+    case backward(GraphBackwardPagination)
+}
+
+extension GraphPagination {
+    /// The zero value for pagination, providing no constraints.
+    public static let zero = Self.forward(GraphForwardPagination())
+}
+
 /// The interface describing forward pagination inputs.
 public protocol GraphForwardPaginatable {
     var first: Int? { get }
@@ -16,8 +27,8 @@ public protocol GraphBackwardPaginatable {
 public protocol GraphPaginatable: GraphForwardPaginatable, GraphBackwardPaginatable {}
 
 extension GraphForwardPaginatable {
-    /// Construct the real pagination from available inputs.
-    public var current: GraphPagination? {
+    /// Get concrete pagination from available inputs.
+    public var pagination: GraphPagination? {
         if self.first != nil || self.after != nil {
             return .forward(.init(first: self.first, after: self.after))
         }
@@ -26,8 +37,8 @@ extension GraphForwardPaginatable {
 }
 
 extension GraphPaginatable {
-    /// Construct the real pagination from available inputs.
-    public var current: GraphPagination? {
+    /// Get concrete pagination from available inputs.
+    public var pagination: GraphPagination? {
         if self.first != nil || self.after != nil {
             return .forward(.init(first: self.first, after: self.after))
         }
@@ -36,17 +47,6 @@ extension GraphPaginatable {
         }
         return nil
     }
-}
-
-/// Real pagination inputs.
-public enum GraphPagination {
-    case forward(GraphForwardPagination)
-    case backward(GraphBackwardPagination)
-}
-
-
-extension GraphPagination {
-    public static let zero = Self.forward(GraphForwardPagination())
 }
 
 /// A concrete forward pagination input.
@@ -89,7 +89,7 @@ public struct GraphPageInfo: Equatable, Codable {
 }
 
 extension GraphPageInfo {
-    /// The zero value for pagination.
+    /// The zero value for page info.
     public static let zero = Self(
         hasPreviousPage: false,
         hasNextPage: false,
