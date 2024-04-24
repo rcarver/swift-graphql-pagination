@@ -32,7 +32,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<5,
                 nodes: [a, b, c, d, e],
-                cursors: ["a", "b", "c", "d", "e"]
+                cursors: ["a", "b", "c", "d", "e"],
+                hasPrevious: false,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -43,7 +45,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<2,
                 nodes: [a, b],
-                cursors: ["a", "b"]
+                cursors: ["a", "b"],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -54,7 +58,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<5,
                 nodes: [b, c, d, e],
-                cursors: ["b", "c", "d", "e"]
+                cursors: ["b", "c", "d", "e"],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -65,7 +71,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [b, c],
-                cursors: ["b", "c"]
+                cursors: ["b", "c"],
+                hasPrevious: true,
+                hasNext: true
             )
         )
     }
@@ -78,7 +86,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<5,
                 nodes: [a, b, c, d, e],
-                cursors: [0, 1, 2, 3, 4]
+                cursors: [0, 1, 2, 3, 4],
+                hasPrevious: false,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -89,7 +99,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<2,
                 nodes: [a, b],
-                cursors: [0, 1]
+                cursors: [0, 1],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -100,7 +112,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<5,
                 nodes: [b, c, d, e],
-                cursors: [1, 2, 3, 4]
+                cursors: [1, 2, 3, 4],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -111,7 +125,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [b, c],
-                cursors: [1, 2]
+                cursors: [1, 2],
+                hasPrevious: true,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -122,7 +138,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<4,
                 nodes: [c, d, e],
-                cursors: [2, 3, 4]
+                cursors: [2, 3, 4],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -133,7 +151,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [c, d],
-                cursors: [2, 3]
+                cursors: [2, 3],
+                hasPrevious: true,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -144,7 +164,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [d, e],
-                cursors: [3, 4]
+                cursors: [3, 4],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -155,7 +177,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [d, e],
-                cursors: [3, 4]
+                cursors: [3, 4],
+                hasPrevious: true,
+                hasNext: false
             )
         )
     }
@@ -169,7 +193,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<5,
                 nodes: [a, b, c, d, e],
-                cursors: ["a", "b", "c", "d", "e"]
+                cursors: ["a", "b", "c", "d", "e"],
+                hasPrevious: false,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -180,7 +206,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 3..<5,
                 nodes: [d, e],
-                cursors: ["d", "e"]
+                cursors: ["d", "e"],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -191,7 +219,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<3,
                 nodes: [a, b, c],
-                cursors: ["a", "b", "c"]
+                cursors: ["a", "b", "c"],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -202,7 +232,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [b, c],
-                cursors: ["b", "c"]
+                cursors: ["b", "c"],
+                hasPrevious: true,
+                hasNext: true
             )
         )
     }
@@ -215,7 +247,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<5,
                 nodes: [a, b, c, d, e],
-                cursors: [0, 1, 2, 3, 4]
+                cursors: [0, 1, 2, 3, 4],
+                hasPrevious: false,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -226,7 +260,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 3..<5,
                 nodes: [d, e],
-                cursors: [3, 4]
+                cursors: [3, 4],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -237,7 +273,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<4,
                 nodes: [a, b, c, d],
-                cursors: [0, 1, 2, 3]
+                cursors: [0, 1, 2, 3],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -248,7 +286,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 2..<4,
                 nodes: [c, d],
-                cursors: [2, 3]
+                cursors: [2, 3],
+                hasPrevious: true,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -259,7 +299,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<3,
                 nodes: [a, b, c],
-                cursors: [0, 1, 2]
+                cursors: [0, 1, 2],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -270,7 +312,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 1..<3,
                 nodes: [b, c],
-                cursors: [1, 2]
+                cursors: [1, 2],
+                hasPrevious: true,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -281,7 +325,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<2,
                 nodes: [a, b],
-                cursors: [0, 1]
+                cursors: [0, 1],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -292,7 +338,9 @@ final class BoundedTests: XCTestCase {
             Bounded(
                 range: 0..<2,
                 nodes: [a, b],
-                cursors: [0, 1]
+                cursors: [0, 1],
+                hasPrevious: false,
+                hasNext: true
             )
         )
     }

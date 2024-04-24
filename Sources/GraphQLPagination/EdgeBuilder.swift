@@ -196,11 +196,17 @@ struct Bounded<T: Equatable>: Equatable {
     let range: Range<Int>
     let nodes: [T]
     let cursors: [Cursor]
-    var hasPrevious: Bool {
-        self.range.lowerBound > 0
-    }
-    var hasNext: Bool {
-        self.range.upperBound < nodes.count - 1
+    let hasPrevious: Bool
+    let hasNext: Bool
+}
+
+fileprivate extension Bounded {
+    init(range: Range<Int>, count: Int, nodes: [T], cursors: [Cursor]) {
+        self.range = range
+        self.nodes = nodes
+        self.cursors = cursors
+        self.hasNext = range.upperBound < count
+        self.hasPrevious = range.lowerBound > 0
     }
 }
 
@@ -215,20 +221,25 @@ extension Bounded {
         self.init(forward: forward, nodes: nodes, cursors: cursors)
     }
     private init(forward: any GraphForwardPaginatable, nodes: [T], cursors: [Cursor]) {
+        let range: Range<Int>
         switch (forward.first, forward.after) {
         case let (.some(first), .none):
-            self.range = 0..<first
+            range = 0..<first
         case let (.none, .some(after)):
             let index = cursors.firstIndex(where: { $0 == after }) ?? -1
-            self.range = (index + 1)..<nodes.count
+            range = (index + 1)..<nodes.count
         case let (.some(first), .some(after)):
             let index = cursors.firstIndex(where: { $0 == after }) ?? -1
-            self.range = (index + 1)..<(index + 1 + first)
+            range = (index + 1)..<(index + 1 + first)
         case (.none, .none):
-            self.range = 0..<nodes.count
+            range = 0..<nodes.count
         }
-        self.nodes = Array(nodes[range])
-        self.cursors = Array(cursors[range])
+        self.init(
+            range: range,
+            count: nodes.count,
+            nodes: Array(nodes[range]),
+            cursors: Array(cursors[range])
+        )
     }
 }
 
@@ -243,20 +254,25 @@ extension Bounded {
         self.init(backward: backward, nodes: nodes, cursors: cursors)
     }
     private init(backward: any GraphBackwardPaginatable, nodes: [T], cursors: [Cursor]) {
+        let range: Range<Int>
         switch (backward.last, backward.before) {
         case let (.some(last), .none):
-            self.range = (nodes.count - last)..<nodes.count
+            range = (nodes.count - last)..<nodes.count
         case let (.none, .some(before)):
             let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
-            self.range = 0..<index
+            range = 0..<index
         case let (.some(last), .some(before)):
             let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
-            self.range = (index - last)..<index
+            range = (index - last)..<index
         case (.none, .none):
-            self.range = 0..<nodes.count
+            range = 0..<nodes.count
         }
-        self.nodes = Array(nodes[range])
-        self.cursors = Array(cursors[range])
+        self.init(
+            range: range,
+            count: nodes.count,
+            nodes: Array(nodes[range]),
+            cursors: Array(cursors[range])
+        )
     }
 }
 
