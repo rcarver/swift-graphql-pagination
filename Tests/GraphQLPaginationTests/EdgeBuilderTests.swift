@@ -178,6 +178,60 @@ final class BoundedTests: XCTestCase {
             )
         )
     }
+    func test_forward_invalid() {
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 10),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 0..<4,
+                nodes: [a, b, c, d],
+                cursors: [0, 1, 2, 3],
+                hasPrevious: false,
+                hasNext: false
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 10, after: 0),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 1..<4,
+                nodes: [b, c, d],
+                cursors: [1, 2, 3],
+                hasPrevious: true,
+                hasNext: false
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(after: 100),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 1..<4,
+                nodes: [b, c, d],
+                cursors: [101, 102, 103],
+                hasPrevious: true,
+                hasNext: false
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 10, after: 100),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 1..<4,
+                nodes: [b, c, d],
+                cursors: [101, 102, 103],
+                hasPrevious: true,
+                hasNext: false
+            )
+        )
+    }
 
     func test_backward_identified() {
         XCTAssertNoDifference(
@@ -364,6 +418,32 @@ final class BoundedTests: XCTestCase {
                 cursors: [0, 1],
                 hasPrevious: false,
                 hasNext: true
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(before: 100),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 0..<4,
+                nodes: [a, b, c, d],
+                cursors: [0, 1, 2, 3],
+                hasPrevious: false,
+                hasNext: false
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 10, before: 100),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 0..<4,
+                nodes: [a, b, c, d],
+                cursors: [89, 90, 91, 92],
+                hasPrevious: false,
+                hasNext: false
             )
         )
     }

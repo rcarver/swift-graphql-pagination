@@ -44,6 +44,11 @@ public enum GraphPagination {
     case backward(GraphBackwardPagination)
 }
 
+
+extension GraphPagination {
+    public static let zero = Self.forward(GraphForwardPagination())
+}
+
 /// A concrete forward pagination input.
 public struct GraphForwardPagination: GraphForwardPaginatable {
     public var first: Int?

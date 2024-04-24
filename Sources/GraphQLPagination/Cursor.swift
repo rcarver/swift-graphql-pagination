@@ -23,7 +23,7 @@ extension Cursor {
     public init(intValue: Int) {
         self.rawValue = String(intValue)
     }
-    func intValue() -> Int? {
+    public func intValue() -> Int? {
         return Int(self.rawValue)
     }
 }
