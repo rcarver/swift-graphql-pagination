@@ -29,11 +29,15 @@ struct PeopleArguments: GraphPaginatable {
 Use pagination.
 
 ```swift
-func people(context: Context, arguments: PeopleArguments) -> BasicConnection<Person> {
+func people(context: Context, arguments: PeopleArguments) async throws -> BasicConnection<Person> {
   // Extract offset and count from the input, and query the database.
   let offsetPagination = arguments.pagination.makeOffsetPagination()
-  let people = try await Person.all(offset: offsetPagination.offset, count: offsetPagination.count)
-  // Create a connection data structure converting people into edges with index-based cursors.
+  let people = try await Person.all(
+    offset: offsetPagination.offset,
+    count: offsetPagination.count
+  )
+  // Create a connection data structure converting people into edges
+  // with index-based cursors.
   return BasicConnection(
     nodes: people,
     pagination: arguments.pagination,
