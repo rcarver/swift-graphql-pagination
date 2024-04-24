@@ -1,18 +1,20 @@
 import Foundation
 
 /// Describes how to create the cursor for a set of edges.
-enum CursorType {
+public enum CursorType {
     /// The edge cursor is based on the node's `cursor` property.
     case identifier
     /// The edge cursor is based on the index of the node.
     case index
 }
 
+/// A type that defines its own Cursor.
 public protocol GraphCursorable {
     var cursor: Cursor { get }
 }
 
 extension EdgeBuilder {
+    /// Construct a set of edges from nodes.
     public static func build(
         cursor: CursorType,
         nodes: [Node],
@@ -24,50 +26,40 @@ extension EdgeBuilder {
     }
 }
 
-struct EdgeBuilder<Node: GraphCursorable, Edge> {
-    let nodes: [Node]
-    let transform: (Cursor, Node) -> Edge
-}
-
-struct EdgesConstruction<Edge> {
-    let edges: [Edge]
-    let pageInfo: GraphPageInfo
+/// The result of building edges from nodes.
+public struct EdgesConstruction<Edge> {
+    public let edges: [Edge]
+    public let pageInfo: GraphPageInfo
+    public init(edges: [Edge], pageInfo: GraphPageInfo) {
+        self.edges = edges
+        self.pageInfo = pageInfo
+    }
 }
 
 extension EdgesConstruction: Equatable where Edge: Equatable {}
 
+/// A type that can transform a set of nodes into edges with pagination logic.
+public struct EdgeBuilder<Node: GraphCursorable, Edge> {
+    let nodes: [Node]
+    let transform: (Cursor, Node) -> Edge
+    public init(nodes: [Node], transform: @escaping (Cursor, Node) -> Edge) {
+        self.nodes = nodes
+        self.transform = transform
+    }
+}
+
 extension EdgeBuilder {
-    func makeEdges(cursor: CursorType, pagination: GraphPagination?) -> EdgesConstruction<Edge> {
+    public func makeEdges(cursor: CursorType, pagination: GraphPagination?) -> EdgesConstruction<Edge> {
         switch pagination {
         case .none: self.makeEdges(cursor: cursor)
         case let .forward(forward): self.makeEdges(cursor: cursor, pagination: forward)
         case let .backward(backward): self.makeEdges(cursor: cursor, pagination: backward)
         }
     }
-    func makeEdges(cursor: CursorType) -> EdgesConstruction<Edge> {
-        guard !self.nodes.isEmpty else {
-            return EdgesConstruction(edges: [], pageInfo: .zero)
-        }
-        switch cursor {
-        case .identifier:
-            let edges = self.nodes.map { self.transform($0.cursor, $0) }
-            return EdgesConstruction(edges: edges, pageInfo: GraphPageInfo(
-                hasPreviousPage: false,
-                hasNextPage: false,
-                startCursor: nodes.first?.cursor,
-                endCursor: nodes.last?.cursor
-            ))
-        case .index:
-            let edges = self.nodes.enumerated().map { self.transform(Cursor(intValue: $0), $1) }
-            return EdgesConstruction(edges: edges, pageInfo: GraphPageInfo(
-                hasPreviousPage: false,
-                hasNextPage: false,
-                startCursor: Cursor(intValue: 0),
-                endCursor: Cursor(intValue: nodes.count - 1)
-            ))
-        }
+    public func makeEdges(cursor: CursorType) -> EdgesConstruction<Edge> {
+        self.makeEdges(cursor: cursor, pagination: GraphForwardPagination())
     }
-    func makeEdges<P: GraphForwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
+    public func makeEdges<P: GraphForwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
         let bounded = Bounded(
             type: cursor,
             forward: pagination,
@@ -78,7 +70,7 @@ extension EdgeBuilder {
             pageInfo: GraphPageInfo(bounded: bounded)
         )
     }
-    func makeEdges<P: GraphBackwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
+    public func makeEdges<P: GraphBackwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
         let bounded = Bounded(
             type: cursor,
             backward: pagination,
@@ -200,7 +192,7 @@ extension Bounded {
     }
 }
 
-extension GraphPageInfo {
+fileprivate extension GraphPageInfo {
     init<T>(bounded: Bounded<T>) {
         self.init(
             hasPreviousPage: bounded.hasPrevious,

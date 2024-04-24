@@ -1,13 +1,13 @@
 import Foundation
 
 /// The interface describing forward pagination inputs.
-protocol GraphForwardPaginatable {
+public protocol GraphForwardPaginatable {
     var first: Int? { get }
     var after: Cursor? { get }
 }
 
 /// The interface describing backward pagination inputs.
-protocol GraphBackwardPaginatable {
+public protocol GraphBackwardPaginatable {
     var last: Int? { get }
     var before: Cursor? { get }
 }
@@ -17,7 +17,7 @@ protocol GraphPaginatable: GraphForwardPaginatable, GraphBackwardPaginatable {}
 
 extension GraphForwardPaginatable {
     /// Construct the real pagination from available inputs.
-    var current: GraphPagination? {
+    public var current: GraphPagination? {
         if self.first != nil || self.after != nil {
             return .forward(.init(first: self.first, after: self.after))
         }
@@ -27,7 +27,7 @@ extension GraphForwardPaginatable {
 
 extension GraphPaginatable {
     /// Construct the real pagination from available inputs.
-    var current: GraphPagination? {
+    public var current: GraphPagination? {
         if self.first != nil || self.after != nil {
             return .forward(.init(first: self.first, after: self.after))
         }
@@ -39,15 +39,15 @@ extension GraphPaginatable {
 }
 
 /// Real pagination inputs.
-enum GraphPagination {
+public enum GraphPagination {
     case forward(GraphForwardPagination)
     case backward(GraphBackwardPagination)
 }
 
 /// A concrete forward pagination input.
-struct GraphForwardPagination: GraphForwardPaginatable {
-    var first: Int?
-    var after: Cursor?
+public struct GraphForwardPagination: GraphForwardPaginatable {
+    public var first: Int?
+    public var after: Cursor?
     public init(first: Int? = nil, after: Cursor? = nil) {
         self.first = first
         self.after = after
@@ -55,9 +55,9 @@ struct GraphForwardPagination: GraphForwardPaginatable {
 }
 
 /// A concrete backward pagination input.
-struct GraphBackwardPagination: GraphBackwardPaginatable {
-    var last: Int?
-    var before: Cursor?
+public struct GraphBackwardPagination: GraphBackwardPaginatable {
+    public var last: Int?
+    public var before: Cursor?
     public init(last: Int? = nil, before: Cursor? = nil) {
         self.last = last
         self.before = before
@@ -74,7 +74,7 @@ public struct GraphPageInfo: Equatable, Codable {
 
 extension GraphPageInfo {
     /// The zero value for pagination.
-    static let zero = Self(
+    public static let zero = Self(
         hasPreviousPage: false,
         hasNextPage: false,
         startCursor: nil,
