@@ -182,7 +182,7 @@ extension Bounded {
             range = 0..<index
         case let (.some(last), .some(before)):
             let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
-            range = max(0, index - last)..<min(index, last)
+            range = max(0, index - last)..<min(index, nodes.count)
         case (.none, .none):
             range = 0..<nodes.count
         }
