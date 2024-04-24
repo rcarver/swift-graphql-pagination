@@ -199,11 +199,11 @@ final class BoundedTests: XCTestCase {
                 identified: [a, b, c, d, e]
             ),
             Bounded(
-                range: 3..<5,
-                nodes: [d, e],
-                cursors: ["d", "e"],
-                hasPrevious: true,
-                hasNext: false
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: ["a", "b"],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -253,11 +253,11 @@ final class BoundedTests: XCTestCase {
                 indexed: [a, b, c, d, e]
             ),
             Bounded(
-                range: 3..<5,
-                nodes: [d, e],
-                cursors: [3, 4],
-                hasPrevious: true,
-                hasNext: false
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: [0, 1],
+                hasPrevious: false,
+                hasNext: true
             )
         )
         XCTAssertNoDifference(
@@ -276,10 +276,10 @@ final class BoundedTests: XCTestCase {
         XCTAssertNoDifference(
             Bounded(
                 backward: Backward(last: 2, before: 4),
-                indexed: [a, b, c, d, e]
+                indexed: [b, c, d, e]
             ),
             Bounded(
-                range: 2..<4,
+                range: 1..<3,
                 nodes: [c, d],
                 cursors: [2, 3],
                 hasPrevious: true,
@@ -604,15 +604,15 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
+                    TestEdge(cursor: "a", node: a),
                     TestEdge(cursor: "b", node: b),
                     TestEdge(cursor: "c", node: c),
-                    TestEdge(cursor: "d", node: d),
                 ],
                 pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: false,
-                    startCursor: "b",
-                    endCursor: "d"
+                    hasPreviousPage: false,
+                    hasNextPage: true,
+                    startCursor: "a",
+                    endCursor: "c"
                 )
             )
         )
@@ -623,15 +623,15 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
+                    TestEdge(cursor: 0, node: a),
                     TestEdge(cursor: 1, node: b),
                     TestEdge(cursor: 2, node: c),
-                    TestEdge(cursor: 3, node: d),
                 ],
                 pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: false,
-                    startCursor: 1,
-                    endCursor: 3
+                    hasPreviousPage: false,
+                    hasNextPage: true,
+                    startCursor: 0,
+                    endCursor: 2
                 )
             )
         )

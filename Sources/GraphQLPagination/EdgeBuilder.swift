@@ -165,7 +165,10 @@ extension Bounded {
         self.init(backward: backward, nodes: nodes, cursors: cursors)
     }
     init(backward: any GraphBackwardPaginatable, indexed nodes: [T]) {
-        let offset = nodes.count - 1 - (backward.before?.intValue() ?? nodes.count - 1)
+        var offset: Int = 0
+        if let last = backward.last, let before = backward.before?.intValue() {
+            offset = max(0, before - 1 - last)
+        }
         let cursors = nodes.indices.map { Cursor(intValue: $0 + offset) }
         self.init(backward: backward, nodes: nodes, cursors: cursors)
     }
@@ -173,7 +176,7 @@ extension Bounded {
         let range: Range<Int>
         switch (backward.last, backward.before) {
         case let (.some(last), .none):
-            range = (nodes.count - last)..<nodes.count
+            range = 0..<last
         case let (.none, .some(before)):
             let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
             range = 0..<index

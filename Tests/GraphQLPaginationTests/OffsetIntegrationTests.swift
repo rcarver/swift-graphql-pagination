@@ -12,8 +12,10 @@ final class OffsetIntegrationTests: XCTestCase {
     struct Node: Equatable, GraphCursorable {
         let value: Int
         var cursor: Cursor {
-            // 0 => "a"
-            Cursor(rawValue: String(Character(UnicodeScalar(self.value + 97)!)))
+            Cursor(
+                // 0 => "a"
+                rawValue: String(Character(UnicodeScalar(self.value + 97)!))
+            )
         }
     }
     let maxResults = 10
@@ -117,7 +119,7 @@ final class OffsetIntegrationTests: XCTestCase {
         XCTAssertEqual(nodes.count, 5)
         XCTAssertNoDifference(nodes.map(\.value), [2, 3, 4, 5, 6])
         XCTAssertNoDifference(
-            BasicConnection(nodes: nodes, pagination: input, cursor: .identifier),
+            BasicConnection(nodes: nodes, pagination: Input(first: 3, after: "c"), cursor: .identifier),
             BasicConnection(
                 edges: [
                     BasicEdge(cursor: "d", node: Node(value: 3)),
@@ -193,7 +195,7 @@ final class OffsetIntegrationTests: XCTestCase {
         XCTAssertEqual(nodes.count, 5)
         XCTAssertNoDifference(nodes.map(\.value), [4, 5, 6, 7, 8])
         XCTAssertNoDifference(
-            BasicConnection(nodes: nodes, pagination: input, cursor: .identifier),
+            BasicConnection(nodes: nodes, pagination: Input(last: 3, before: "i"), cursor: .identifier),
             BasicConnection(
                 edges: [
                     BasicEdge(cursor: "f", node: Node(value: 5)),

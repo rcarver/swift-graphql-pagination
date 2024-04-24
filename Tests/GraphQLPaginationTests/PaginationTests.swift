@@ -205,15 +205,15 @@ final class BasicConnectionTests: XCTestCase {
             ),
             BasicConnection(
                 edges: [
+                    BasicEdge(cursor: "a", node: a),
                     BasicEdge(cursor: "b", node: b),
                     BasicEdge(cursor: "c", node: c),
-                    BasicEdge(cursor: "d", node: d),
                 ],
                 pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: false,
-                    startCursor: "b",
-                    endCursor: "d"
+                    hasPreviousPage: false,
+                    hasNextPage: true,
+                    startCursor: "a",
+                    endCursor: "c"
                 )
             )
         )
