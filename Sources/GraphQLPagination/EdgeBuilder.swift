@@ -51,7 +51,7 @@ extension EdgeBuilder {
     func makeEdges<P: GraphForwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
         switch cursor {
         case .identifier:
-            let calculator = PlusTwoPageInfoCalculator(
+            let calculator = ForwardCalculator(
                 cursors: nodes.map(\.cursor),
                 pagination: pagination
             )
@@ -60,7 +60,7 @@ extension EdgeBuilder {
                 pageInfo: calculator.makePageInfo()
             )
         case .index:
-            let calculator = PlusTwoPageInfoCalculator(
+            let calculator = ForwardCalculator(
                 cursors: self.nodes.indices.map {
                     let after = pagination.after?.intValue()
                     return Cursor(intValue: after == nil ? $0 : $0)
@@ -73,14 +73,25 @@ extension EdgeBuilder {
             )
         }
     }
+    func makeEdges<P: GraphBackwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
+        let calculator = BackwardCalculator(
+            nodes: nodes,
+            type: cursor,
+            pagination: pagination
+        )
+        return EdgesConstruction(
+            edges: calculator.mapCursors(transform: self.transform),
+            pageInfo: calculator.makePageInfo()
+        )
+    }
 }
 
-private struct PlusTwoPageInfoCalculator<Pagination: GraphForwardPaginatable> {
+private struct ForwardCalculator<Pagination: GraphForwardPaginatable> {
     var cursors: [Cursor]
     var pagination: Pagination
 }
 
-extension PlusTwoPageInfoCalculator {
+extension ForwardCalculator {
     func mapCursors<T, N>(nodes: [T], transform: (T, Cursor, Int) -> N) -> [N] {
         zip(self.sliced(self.cursors), self.sliced(nodes)).enumerated().map {
             transform($1.1, $1.0, $0)
@@ -108,7 +119,7 @@ extension PlusTwoPageInfoCalculator {
     }
 }
 
-private extension PlusTwoPageInfoCalculator {
+private extension ForwardCalculator {
     var hasPreviousPage: Bool {
         sliceInfo.afterIndex != nil
     }
@@ -153,5 +164,114 @@ private extension PlusTwoPageInfoCalculator {
     func sliced<T>(_ nodes: [T]) -> ArraySlice<T> {
         precondition(nodes.count == cursors.count, "Node count must equal cursor count")
         return self.sliceInfo.slice(nodes)
+    }
+}
+
+private struct BackwardCalculator<Node: GraphCursorable, Pagination: GraphBackwardPaginatable> {
+    var nodes: [Node]
+    var type: CursorType
+    var pagination: Pagination
+}
+
+extension BackwardCalculator {
+    func mapCursors<N>(transform: (Node, Cursor, Int) -> N) -> [N] {
+        zip(self.sliced(self.nodes), self.sliced(self.cursors))
+            .enumerated()
+            .map {
+                transform($0.element.0, $0.element.1, $0.offset)
+            }
+    }
+    func makePageInfo() -> GraphPageInfo {
+        let slicedCursors = self.sliceInfo.slice(self.cursors)
+        return GraphPageInfo(
+            hasPreviousPage: self.sliceInfo.hasPreviousPage(self.nodes.count),
+            hasNextPage: self.self.sliceInfo.hasNextPage(self.nodes.count),
+            startCursor: slicedCursors.first,
+            endCursor: slicedCursors.last
+        )
+    }
+}
+
+private extension BackwardCalculator {
+    struct SliceInfo {
+        var beforeIndex: Int?
+        var subset: Int?
+        func slice<T>(_ collection: [T]) -> ArraySlice<T> {
+            switch (self.beforeIndex, self.subset) {
+            case let (.some(beforeIndex), .some(subset)):
+                return collection[(beforeIndex-subset)..<beforeIndex]
+            case let (.some(beforeIndex), .none):
+                return collection[0..<beforeIndex]
+            case let (.none, .some(subset)):
+                return collection.suffix(subset)
+            case (.none, .none):
+                return ArraySlice(collection)
+            }
+        }
+        func hasPreviousPage(_ count: Int) -> Bool {
+            switch (self.beforeIndex, self.subset) {
+            case let (.some(beforeIndex), .some(subset)):
+                return beforeIndex - subset > 0
+            case let (.some(beforeIndex), .none):
+                return beforeIndex < count - 1
+            case let (.none, .some(suffix)):
+                return suffix < count
+            case (.none, .none):
+                return false
+            }
+        }
+        func hasNextPage(_ count: Int) -> Bool {
+            if let index = self.beforeIndex {
+                return index < count
+            } else {
+                return false
+            }
+        }
+    }
+    var sliceInfo: SliceInfo {
+        switch self.type {
+        case .identifier:
+            guard
+                let before = pagination.before,
+                let beforeIndex = self.nodes.lastIndex(where: { $0.cursor == before })
+            else {
+                return SliceInfo(subset: pagination.last)
+            }
+            return SliceInfo(
+                beforeIndex: beforeIndex,
+                subset: pagination.last
+            )
+        case .index:
+            guard
+                let before = pagination.before?.intValue(),
+                let beforeIndex = self.nodes.indices.lastIndex(where: { $0 == before })
+            else {
+                return SliceInfo(subset: pagination.last)
+            }
+            return SliceInfo(
+                beforeIndex: beforeIndex,
+                subset: pagination.last
+            )
+
+        }
+    }
+    var cursors: [Cursor] {
+        switch self.type {
+        case .identifier:
+            return nodes.map(\.cursor)
+        case .index:
+            if let before = pagination.before?.intValue(), let last = pagination.last {
+                return nodes.enumerated().map {
+                    Cursor(intValue: (before - last) + $0.offset)
+                }
+            } else {
+                return nodes.indices.map {
+                    Cursor(intValue: $0)
+                }
+            }
+        }
+    }
+    func sliced<T>(_ values: [T]) -> ArraySlice<T> {
+        return self.sliceInfo.slice(values)
     }
 }
