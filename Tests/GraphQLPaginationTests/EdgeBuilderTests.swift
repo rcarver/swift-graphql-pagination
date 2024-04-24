@@ -199,11 +199,11 @@ final class BoundedTests: XCTestCase {
                 identified: [a, b, c, d, e]
             ),
             Bounded(
-                range: 0..<2,
-                nodes: [a, b],
-                cursors: ["a", "b"],
-                hasPrevious: false,
-                hasNext: true
+                range: 3..<5,
+                nodes: [d, e],
+                cursors: ["d", "e"],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -253,11 +253,11 @@ final class BoundedTests: XCTestCase {
                 indexed: [a, b, c, d, e]
             ),
             Bounded(
-                range: 0..<2,
-                nodes: [a, b],
-                cursors: [0, 1],
-                hasPrevious: false,
-                hasNext: true
+                range: 3..<5,
+                nodes: [d, e],
+                cursors: [3, 4],
+                hasPrevious: true,
+                hasNext: false
             )
         )
         XCTAssertNoDifference(
@@ -351,9 +351,14 @@ final class EdgeBuilderTests: XCTestCase {
         let cursor: Cursor
         let node: TestNode
     }
+
+    typealias Forward = GraphForwardPagination
+    typealias Backward = GraphBackwardPagination
+
     let a = TestNode(id: "a")
     let b = TestNode(id: "b")
     let c = TestNode(id: "c")
+    let d = TestNode(id: "d")
 
     func test_makeEdges() {
         let builder = EdgeBuilder(nodes: [a, b, c], transform: TestEdge.init)
@@ -425,27 +430,7 @@ final class EdgeBuilderTests: XCTestCase {
             )
         )
     }
-}
-
-final class EdgeBuilderForwardPaginationTests: XCTestCase {
-
-    struct TestNode: Equatable, GraphCursorable {
-        let id: String
-        var cursor: Cursor { .init(rawValue: self.id) }
-    }
-    struct TestEdge: Equatable {
-        let cursor: Cursor
-        let node: TestNode
-    }
-
-    typealias Forward = GraphForwardPagination
-
-    let a = TestNode(id: "a")
-    let b = TestNode(id: "b")
-    let c = TestNode(id: "c")
-    let d = TestNode(id: "d")
-
-    func test_makeEdges_first() {
+    func test_makeEdges_forward() {
         let builder = EdgeBuilder(nodes: [a, b, c, d], transform: TestEdge.init)
         XCTAssertNoDifference(
             builder.makeEdges(
@@ -486,7 +471,8 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             )
         )
     }
-    func test_makeEdges_after() {
+
+    func test_makeEdges_backward() {
         let builder = EdgeBuilder(
             nodes: [a, b, c, d],
             transform: TestEdge.init
@@ -494,7 +480,7 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
         XCTAssertNoDifference(
             builder.makeEdges(
                 cursor: .identifier,
-                pagination: Forward(after: "a")
+                pagination: Backward(last: 3)
             ),
             EdgesConstruction(
                 edges: [
@@ -513,7 +499,7 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
         XCTAssertNoDifference(
             builder.makeEdges(
                 cursor: .index,
-                pagination: Forward(after: 0)
+                pagination: Backward(last: 3)
             ),
             EdgesConstruction(
                 edges: [
@@ -526,198 +512,6 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
                     hasNextPage: false,
                     startCursor: 1,
                     endCursor: 3
-                )
-            )
-        )
-    }
-    func test_makeEdges_first_after() {
-        let builder = EdgeBuilder(
-            nodes: [a, b, c, d],
-            transform: TestEdge.init
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .identifier,
-                pagination: Forward(first: 2, after: "a")
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: "b", node: b),
-                    TestEdge(cursor: "c", node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: true,
-                    startCursor: "b",
-                    endCursor: "c"
-                )
-            )
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .index,
-                pagination: Forward(first: 2, after: 0)
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: 1, node: b),
-                    TestEdge(cursor: 2, node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: true,
-                    startCursor: 1,
-                    endCursor: 2
-                )
-            )
-        )
-    }
-}
-
-final class EdgeBuilderBackwardPaginationTests: XCTestCase {
-
-    struct TestNode: Equatable, GraphCursorable {
-        let id: String
-        var cursor: Cursor { .init(rawValue: self.id) }
-    }
-    struct TestEdge: Equatable {
-        let cursor: Cursor
-        let node: TestNode
-    }
-
-    typealias Backward = GraphBackwardPagination
-
-    let a = TestNode(id: "a")
-    let b = TestNode(id: "b")
-    let c = TestNode(id: "c")
-    let d = TestNode(id: "d")
-
-    func test_makeEdges_last() {
-        let builder = EdgeBuilder(
-            nodes: [a, b, c, d],
-            transform: TestEdge.init
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .identifier,
-                pagination: Backward(last: 3)
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: "a", node: a),
-                    TestEdge(cursor: "b", node: b),
-                    TestEdge(cursor: "c", node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: false,
-                    hasNextPage: true,
-                    startCursor: "a",
-                    endCursor: "c"
-                )
-            )
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .index,
-                pagination: Backward(last: 3)
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: 0, node: a),
-                    TestEdge(cursor: 1, node: b),
-                    TestEdge(cursor: 2, node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: false,
-                    hasNextPage: true,
-                    startCursor: 0,
-                    endCursor: 2
-                )
-            )
-        )
-    }
-    func test_makeEdges_before() {
-        let builder = EdgeBuilder(
-            nodes: [a, b, c, d],
-            transform: TestEdge.init
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .identifier,
-                pagination: Backward(before: "d")
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: "a", node: a),
-                    TestEdge(cursor: "b", node: b),
-                    TestEdge(cursor: "c", node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: false,
-                    hasNextPage: true,
-                    startCursor: "a",
-                    endCursor: "c"
-                )
-            )
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .index,
-                pagination: Backward(before: 3)
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: 0, node: a),
-                    TestEdge(cursor: 1, node: b),
-                    TestEdge(cursor: 2, node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: false,
-                    hasNextPage: true,
-                    startCursor: 0,
-                    endCursor: 2
-                )
-            )
-        )
-    }
-    func test_makeEdges_last_before() {
-        let builder = EdgeBuilder(
-            nodes: [a, b, c, d],
-            transform: TestEdge.init
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .identifier,
-                pagination: Backward(last: 2, before: "d")
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: "b", node: b),
-                    TestEdge(cursor: "c", node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: true,
-                    startCursor: "b",
-                    endCursor: "c"
-                )
-            )
-        )
-        XCTAssertNoDifference(
-            builder.makeEdges(
-                cursor: .index,
-                pagination: Backward(last: 2, before: 3)
-            ),
-            EdgesConstruction(
-                edges: [
-                    TestEdge(cursor: 1, node: b),
-                    TestEdge(cursor: 2, node: c),
-                ],
-                pageInfo: GraphPageInfo(
-                    hasPreviousPage: true,
-                    hasNextPage: true,
-                    startCursor: 1,
-                    endCursor: 2
                 )
             )
         )

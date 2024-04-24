@@ -160,15 +160,15 @@ final class OffsetIntegrationTests: XCTestCase {
             BasicConnection(nodes: nodes, pagination: input, cursor: .identifier),
             BasicConnection(
                 edges: [
-                    BasicEdge(cursor: "a", node: Node(value: 0)),
                     BasicEdge(cursor: "b", node: Node(value: 1)),
                     BasicEdge(cursor: "c", node: Node(value: 2)),
+                    BasicEdge(cursor: "d", node: Node(value: 3)),
                 ],
                 pageInfo: GraphPageInfo(
-                    hasPreviousPage: false,
-                    hasNextPage: true,
-                    startCursor: "a",
-                    endCursor: "c"
+                    hasPreviousPage: true,
+                    hasNextPage: false,
+                    startCursor: "b",
+                    endCursor: "d"
                 )
             )
         )
@@ -176,15 +176,15 @@ final class OffsetIntegrationTests: XCTestCase {
             BasicConnection(nodes: nodes, pagination: input, cursor: .index),
             BasicConnection(
                 edges: [
-                    BasicEdge(cursor: 0, node: Node(value: 0)),
                     BasicEdge(cursor: 1, node: Node(value: 1)),
                     BasicEdge(cursor: 2, node: Node(value: 2)),
+                    BasicEdge(cursor: 3, node: Node(value: 3)),
                 ],
                 pageInfo: GraphPageInfo(
-                    hasPreviousPage: false,
-                    hasNextPage: true,
-                    startCursor: 0,
-                    endCursor: 2
+                    hasPreviousPage: true,
+                    hasNextPage: false,
+                    startCursor: 1,
+                    endCursor: 3
                 )
             )
         )
