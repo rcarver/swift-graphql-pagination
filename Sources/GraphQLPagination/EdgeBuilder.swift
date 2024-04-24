@@ -49,156 +49,43 @@ extension EdgeBuilder {
         }
     }
     func makeEdges<P: GraphForwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
-        switch cursor {
-        case .identifier:
-            let calculator = ForwardCalculator(
-                cursors: nodes.map(\.cursor),
-                pagination: pagination
-            )
-            return EdgesConstruction(
-                edges: calculator.mapCursors(nodes: self.nodes, transform: self.transform),
-                pageInfo: calculator.makePageInfo()
-            )
-        case .index:
-            let calculator = ForwardCalculator(
-                cursors: self.nodes.indices.map {
-                    let after = pagination.after?.intValue()
-                    return Cursor(intValue: after == nil ? $0 : $0)
-                },
-                pagination: pagination
-            )
-            return EdgesConstruction(
-                edges: calculator.mapIndexedCursors(nodes: self.nodes, transform: self.transform),
-                pageInfo: calculator.makePageInfo()
-            )
-        }
-    }
-    func makeEdges<P: GraphBackwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
-        let calculator = BackwardCalculator(
-            nodes: nodes,
+        let bounded = Bounded(
             type: cursor,
-            pagination: pagination
+            forward: pagination,
+            nodes: self.nodes
         )
         return EdgesConstruction(
-            edges: calculator.mapCursors(transform: self.transform),
-            pageInfo: calculator.makePageInfo()
+            edges: bounded.zipped.enumerated().map { self.transform($0.element.0, $0.element.1, $0.offset) },
+            pageInfo: GraphPageInfo(bounded: bounded)
+        )
+    }
+    func makeEdges<P: GraphBackwardPaginatable>(cursor: CursorType, pagination: P) -> EdgesConstruction<Edge> {
+        let bounded = Bounded(
+            type: cursor,
+            backward: pagination,
+            nodes: self.nodes
+        )
+        return EdgesConstruction(
+            edges: bounded.zipped.enumerated().map { self.transform($0.element.0, $0.element.1, $0.offset) },
+            pageInfo: GraphPageInfo(bounded: bounded)
         )
     }
 }
 
-private struct ForwardCalculator<Pagination: GraphForwardPaginatable> {
-    var cursors: [Cursor]
-    var pagination: Pagination
-}
 
-extension ForwardCalculator {
-    func mapCursors<T, N>(nodes: [T], transform: (T, Cursor, Int) -> N) -> [N] {
-        zip(self.sliced(self.cursors), self.sliced(nodes)).enumerated().map {
-            transform($1.1, $1.0, $0)
-        }
-    }
-    func mapIndexedCursors<T, N>(nodes: [T], transform: (T, Cursor, Int) -> N) -> [N] {
-        if let after = self.pagination.after?.intValue() {
-            return self.sliced(nodes).enumerated().map {
-                transform($0.element, Cursor(intValue: after + 1 + $0.offset), $0.offset)
-            }
-        } else {
-            return self.sliced(nodes).enumerated().map {
-                transform($1, Cursor(intValue: $0), $0)
-            }
-        }
-    }
-    func makePageInfo() -> GraphPageInfo {
-        let slicedCursors = self.sliceInfo.slice(self.cursors)
-        return GraphPageInfo(
-            hasPreviousPage: self.hasPreviousPage,
-            hasNextPage: self.hasNextPage,
-            startCursor: slicedCursors.first,
-            endCursor: slicedCursors.last
-        )
-    }
-}
-
-private extension ForwardCalculator {
-    var hasPreviousPage: Bool {
-        sliceInfo.afterIndex != nil
-    }
-    var hasNextPage: Bool {
-        guard let first = pagination.first else {
-            return false
-        }
-        if sliceInfo.afterIndex != nil {
-            return cursors.count >= first + 2
-        } else {
-            return cursors.count >= first + 1
-        }
-    }
-    struct SliceInfo {
-        var afterIndex: Int?
-        var prefix: Int?
-        func slice<T>(_ collection: [T]) -> ArraySlice<T> {
-            switch (self.afterIndex, self.prefix) {
-            case let (.some(afterIndex), .some(prefix)):
-                return collection[afterIndex...].prefix(prefix)
-            case let (.some(afterIndex), .none):
-                return collection[afterIndex...]
-            case let (.none, .some(prefix)):
-                return collection.prefix(prefix)
-            case (.none, .none):
-                return ArraySlice(collection)
-            }
-        }
-    }
-    var sliceInfo: SliceInfo {
-        guard
-            let after = pagination.after,
-            let afterIndex = cursors.firstIndex(where: { $0 == after })
-        else {
-            return SliceInfo(prefix: pagination.first)
-        }
-        return SliceInfo(
-            afterIndex: afterIndex.advanced(by: 1),
-            prefix: pagination.first
-        )
-    }
-    func sliced<T>(_ nodes: [T]) -> ArraySlice<T> {
-        precondition(nodes.count == cursors.count, "Node count must equal cursor count")
-        return self.sliceInfo.slice(nodes)
-    }
-}
-
-private struct BackwardCalculator<Node: GraphCursorable, Pagination: GraphBackwardPaginatable> {
-    var nodes: [Node]
-    var type: CursorType
-    var pagination: Pagination
-}
-
-extension BackwardCalculator {
-    func mapCursors<N>(transform: (Node, Cursor, Int) -> N) -> [N] {
-        zip(self.sliced(self.nodes), self.sliced(self.cursors))
-            .enumerated()
-            .map {
-                transform($0.element.0, $0.element.1, $0.offset)
-            }
-    }
-    func makePageInfo() -> GraphPageInfo {
-        let slicedCursors = self.sliceInfo.slice(self.cursors)
-        return GraphPageInfo(
-            hasPreviousPage: self.sliceInfo.hasPreviousPage(self.nodes.count),
-            hasNextPage: self.self.sliceInfo.hasNextPage(self.nodes.count),
-            startCursor: slicedCursors.first,
-            endCursor: slicedCursors.last
-        )
-    }
-}
-
-struct Bounded<T: Equatable>: Equatable {
+struct Bounded<T> {
     let range: Range<Int>
     let nodes: [T]
     let cursors: [Cursor]
     let hasPrevious: Bool
     let hasNext: Bool
+
+    var zipped: Zip2Sequence<[T], [Cursor]> {
+        zip(self.nodes, self.cursors)
+    }
 }
+
+extension Bounded: Equatable where T: Equatable {}
 
 fileprivate extension Bounded {
     init(range: Range<Int>, count: Int, nodes: [T], cursors: [Cursor]) {
@@ -207,6 +94,25 @@ fileprivate extension Bounded {
         self.cursors = cursors
         self.hasNext = range.upperBound < count
         self.hasPrevious = range.lowerBound > 0
+    }
+}
+
+extension Bounded {
+    init(type: CursorType, forward: any GraphForwardPaginatable, nodes: [T]) where T: GraphCursorable {
+        switch type {
+        case .identifier:
+            self.init(forward: forward, identified: nodes)
+        case .index:
+            self.init(forward: forward, indexed: nodes)
+        }
+    }
+    init(type: CursorType, backward: any GraphBackwardPaginatable, nodes: [T]) where T: GraphCursorable {
+        switch type {
+        case .identifier:
+            self.init(backward: backward, identified: nodes)
+        case .index:
+            self.init(backward: backward, indexed: nodes)
+        }
     }
 }
 
@@ -276,86 +182,13 @@ extension Bounded {
     }
 }
 
-private extension BackwardCalculator {
-    struct SliceInfo {
-        var beforeIndex: Int?
-        var subset: Int?
-        func slice<T>(_ collection: [T]) -> ArraySlice<T> {
-            switch (self.beforeIndex, self.subset) {
-            case let (.some(beforeIndex), .some(subset)):
-                return collection[(beforeIndex-subset)..<beforeIndex]
-            case let (.some(beforeIndex), .none):
-                return collection[0..<beforeIndex]
-            case let (.none, .some(subset)):
-                return collection.suffix(subset)
-            case (.none, .none):
-                return ArraySlice(collection)
-            }
-        }
-        func hasPreviousPage(_ count: Int) -> Bool {
-            switch (self.beforeIndex, self.subset) {
-            case let (.some(beforeIndex), .some(subset)):
-                return beforeIndex - subset > 0
-            case let (.some(beforeIndex), .none):
-                return beforeIndex < count - 1
-            case let (.none, .some(suffix)):
-                return suffix < count
-            case (.none, .none):
-                return false
-            }
-        }
-        func hasNextPage(_ count: Int) -> Bool {
-            if let index = self.beforeIndex {
-                return index < count
-            } else {
-                return false
-            }
-        }
-    }
-    var sliceInfo: SliceInfo {
-        switch self.type {
-        case .identifier:
-            guard
-                let before = pagination.before,
-                let beforeIndex = self.nodes.lastIndex(where: { $0.cursor == before })
-            else {
-                return SliceInfo(subset: pagination.last)
-            }
-            return SliceInfo(
-                beforeIndex: beforeIndex,
-                subset: pagination.last
-            )
-        case .index:
-            guard
-                let before = pagination.before?.intValue(),
-                let beforeIndex = self.nodes.indices.lastIndex(where: { $0 == before })
-            else {
-                return SliceInfo(subset: pagination.last)
-            }
-            return SliceInfo(
-                beforeIndex: beforeIndex,
-                subset: pagination.last
-            )
-
-        }
-    }
-    var cursors: [Cursor] {
-        switch self.type {
-        case .identifier:
-            return nodes.map(\.cursor)
-        case .index:
-            if let before = pagination.before?.intValue(), let last = pagination.last {
-                return nodes.enumerated().map {
-                    Cursor(intValue: (before - last) + $0.offset)
-                }
-            } else {
-                return nodes.indices.map {
-                    Cursor(intValue: $0)
-                }
-            }
-        }
-    }
-    func sliced<T>(_ values: [T]) -> ArraySlice<T> {
-        return self.sliceInfo.slice(values)
+extension GraphPageInfo {
+    init<T>(bounded: Bounded<T>) {
+        self.init(
+            hasPreviousPage: bounded.hasPrevious,
+            hasNextPage: bounded.hasNext,
+            startCursor: bounded.cursors.first,
+            endCursor: bounded.cursors.last
+        )
     }
 }
