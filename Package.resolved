@@ -1,5 +1,4 @@
 {
-  "originHash" : "efc51c1d0803f048729cb70efab8b1ad5fd77704d3e2af678dd1fbaebdae9971",
   "pins" : [
     {
       "identity" : "swift-custom-dump",
@@ -20,5 +19,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
