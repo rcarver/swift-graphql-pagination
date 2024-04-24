@@ -3,6 +3,160 @@ import XCTest
 
 @testable import GraphQLPagination
 
+final class BoundedTests: XCTestCase {
+
+    struct Forward: GraphForwardPaginatable {
+        var first: Int?
+        var after: Cursor?
+    }
+    struct TestNode: Equatable, GraphCursorable {
+        let id: String
+        var cursor: Cursor { .init(rawValue: self.id) }
+    }
+    let a = TestNode(id: "a")
+    let b = TestNode(id: "b")
+    let c = TestNode(id: "c")
+    let d = TestNode(id: "d")
+    let e = TestNode(id: "e")
+
+    func test_forward_identified() {
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<5,
+                nodes: [a, b, c, d, e],
+                cursors: ["a", "b", "c", "d", "e"]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 2),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: ["a", "b"]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(after: "a"),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<5,
+                nodes: [b, c, d, e],
+                cursors: ["b", "c", "d", "e"]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 2, after: "a"),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [b, c],
+                cursors: ["b", "c"]
+            )
+        )
+    }
+    func test_forward_indexed() {
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<5,
+                nodes: [a, b, c, d, e],
+                cursors: [0, 1, 2, 3, 4]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 2),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: [0, 1]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(after: 0),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<5,
+                nodes: [b, c, d, e],
+                cursors: [1, 2, 3, 4]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 2, after: 0),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [b, c],
+                cursors: [1, 2]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(after: 1),
+                indexed: [b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<4,
+                nodes: [c, d, e],
+                cursors: [2, 3, 4]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 2, after: 1),
+                indexed: [b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [c, d],
+                cursors: [2, 3]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(after: 2),
+                indexed: [c, d, e]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [d, e],
+                cursors: [3, 4]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                forward: Forward(first: 2, after: 2),
+                indexed: [c, d, e]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [d, e],
+                cursors: [3, 4]
+            )
+        )
+    }
+}
+
 final class EdgeBuilderTests: XCTestCase {
 
     struct TestNode: Equatable, GraphCursorable {

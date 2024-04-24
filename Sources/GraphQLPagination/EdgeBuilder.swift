@@ -192,6 +192,46 @@ extension BackwardCalculator {
     }
 }
 
+struct Bounded<T: Equatable>: Equatable {
+    let range: Range<Int>
+    let nodes: [T]
+    let cursors: [Cursor]
+    var hasPrevious: Bool {
+        self.range.lowerBound > 0
+    }
+    var hasNext: Bool {
+        self.range.upperBound < nodes.count - 1
+    }
+}
+
+extension Bounded {
+    init(forward: any GraphForwardPaginatable, identified nodes: [T]) where T: GraphCursorable {
+        let cursors = nodes.map(\.cursor)
+        self.init(forward: forward, nodes: nodes, cursors: cursors)
+    }
+    init(forward: any GraphForwardPaginatable, indexed nodes: [T]) {
+        let offset = forward.after?.intValue() ?? 0
+        let cursors = nodes.indices.map { Cursor(intValue: $0 + offset) }
+        self.init(forward: forward, nodes: nodes, cursors: cursors)
+    }
+    init(forward: any GraphForwardPaginatable, nodes: [T], cursors: [Cursor]) {
+        switch (forward.first, forward.after) {
+        case let (.some(first), .none):
+            self.range = 0..<first
+        case let (.none, .some(after)):
+            let index = cursors.firstIndex(where: { $0 == after }) ?? -1
+            self.range = (index + 1)..<nodes.count
+        case let (.some(first), .some(after)):
+            let index = cursors.firstIndex(where: { $0 == after }) ?? -1
+            self.range = (index + 1)..<(index + 1 + first)
+        case (.none, .none):
+            self.range = 0..<nodes.count
+        }
+        self.nodes = Array(nodes[range])
+        self.cursors = Array(cursors[range])
+    }
+}
+
 private extension BackwardCalculator {
     struct SliceInfo {
         var beforeIndex: Int?
