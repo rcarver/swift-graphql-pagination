@@ -5,14 +5,9 @@ import XCTest
 
 final class BoundedTests: XCTestCase {
 
-    struct Forward: GraphForwardPaginatable {
-        var first: Int?
-        var after: Cursor?
-    }
-    struct Backward: GraphBackwardPaginatable {
-        var last: Int?
-        var before: Cursor?
-    }
+    typealias Forward = GraphForwardPagination
+    typealias Backward = GraphBackwardPagination
+
     struct TestNode: Equatable, GraphCursorable {
         let id: String
         var cursor: Cursor { .init(rawValue: self.id) }
@@ -444,10 +439,9 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
         let cursor: Cursor
         let index: Int
     }
-    struct Forward: GraphForwardPaginatable {
-        var first: Int?
-        var after: Cursor?
-    }
+
+    typealias Forward = GraphForwardPagination
+
     let a = TestNode(id: "a")
     let b = TestNode(id: "b")
     let c = TestNode(id: "c")
@@ -593,10 +587,9 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
         let cursor: Cursor
         let index: Int
     }
-    struct Backward: GraphBackwardPaginatable {
-        var last: Int?
-        var before: Cursor?
-    }
+
+    typealias Backward = GraphBackwardPagination
+
     let a = TestNode(id: "a")
     let b = TestNode(id: "b")
     let c = TestNode(id: "c")

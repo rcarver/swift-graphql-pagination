@@ -12,7 +12,6 @@ protocol GraphEdgeable {
     var node: Node { get }
 }
 
-
 struct BasicConnection<Node>: GraphConnectable {
     var edges: [BasicEdge<Node>]
     var pageInfo: GraphPageInfo
@@ -31,17 +30,28 @@ extension BasicEdge: Equatable where Node: Equatable {}
 extension BasicConnection {
     init(
         nodes: [Node],
-        pagination: (some GraphPaginatable)?,
+        pagination: GraphPagination?,
         cursor: CursorType
     ) where Node: GraphCursorable {
-        let (edges, pageInfo) = makeEdges(
+        let result = EdgeBuilder.build(
+            cursor: cursor,
             nodes: nodes,
-            pagination: pagination,
-            cursor: cursor
-        ) { cursor, node, _ in
+            pagination: pagination
+        ) { node, cursor, _ in
             BasicEdge(cursor: cursor, node: node)
         }
-        self.edges = edges
-        self.pageInfo = pageInfo
+        self.edges = result.edges
+        self.pageInfo = result.pageInfo
+    }
+    init(
+        nodes: [Node],
+        pagination: any GraphPaginatable,
+        cursor: CursorType
+    ) where Node: GraphCursorable {
+        self.init(
+            nodes: nodes,
+            pagination: pagination.current,
+            cursor: cursor
+        )
     }
 }

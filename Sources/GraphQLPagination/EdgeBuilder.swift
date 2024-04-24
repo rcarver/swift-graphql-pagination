@@ -12,6 +12,18 @@ public protocol GraphCursorable {
     var cursor: Cursor { get }
 }
 
+extension EdgeBuilder {
+    public static func build(
+        cursor: CursorType,
+        nodes: [Node],
+        pagination: GraphPagination?,
+        transform: @escaping (Node, Cursor, Int) -> Edge
+    ) -> EdgesConstruction<Edge> {
+        let builder = EdgeBuilder(nodes: nodes, transform: transform)
+        return builder.makeEdges(cursor: cursor, pagination: pagination)
+    }
+}
+
 struct EdgeBuilder<Node: GraphCursorable, Edge> {
     let nodes: [Node]
     let transform: (Node, Cursor, Int) -> Edge
@@ -25,6 +37,13 @@ struct EdgesConstruction<Edge> {
 extension EdgesConstruction: Equatable where Edge: Equatable {}
 
 extension EdgeBuilder {
+    func makeEdges(cursor: CursorType, pagination: GraphPagination?) -> EdgesConstruction<Edge> {
+        switch pagination {
+        case .none: self.makeEdges(cursor: cursor)
+        case let .forward(forward): self.makeEdges(cursor: cursor, pagination: forward)
+        case let .backward(backward): self.makeEdges(cursor: cursor, pagination: backward)
+        }
+    }
     func makeEdges(cursor: CursorType) -> EdgesConstruction<Edge> {
         guard !self.nodes.isEmpty else {
             return EdgesConstruction(edges: [], pageInfo: .zero)
