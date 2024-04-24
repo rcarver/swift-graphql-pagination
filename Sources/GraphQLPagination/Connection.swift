@@ -1,34 +1,42 @@
 import Foundation
 
 /// The interface to create a "connection" structure in GraphQL output.
-protocol GraphConnectable {
+public protocol GraphConnectable {
     associatedtype Edge
     var edges: [Edge] { get }
     var pageInfo: GraphPageInfo { get }
 }
 
 /// The interface for an "edge" in GraphQL connection output.
-protocol GraphEdgeable {
+public protocol GraphEdgeable {
     associatedtype Node
     var cursor: Cursor { get }
     var node: Node { get }
 }
 
 /// A simple connection structure.
-struct BasicConnection<Node>: GraphConnectable {
-    var edges: [BasicEdge<Node>]
-    var pageInfo: GraphPageInfo
+public struct BasicConnection<Node>: GraphConnectable {
+    public var edges: [BasicEdge<Node>]
+    public var pageInfo: GraphPageInfo
+    public init(edges: [BasicEdge<Node>], pageInfo: GraphPageInfo) {
+        self.edges = edges
+        self.pageInfo = pageInfo
+    }
 }
 
 /// A simple edge structure.
-struct BasicEdge<Node>: GraphEdgeable {
-    var cursor: Cursor
-    var node: Node
+public struct BasicEdge<Node>: GraphEdgeable {
+    public var cursor: Cursor
+    public var node: Node
+    public init(cursor: Cursor, node: Node) {
+        self.cursor = cursor
+        self.node = node
+    }
 }
 
 extension BasicConnection {
     /// Build a connection from nodes for any paginatable input.
-    init(
+    public init(
         nodes: [Node],
         pagination: any GraphPaginatable,
         cursor: CursorType
@@ -36,7 +44,7 @@ extension BasicConnection {
         self.init(nodes: nodes, pagination: pagination.current, cursor: cursor)
     }
     /// Build a connection from nodes for any forward paginatable input.
-    init(
+    public init(
         nodes: [Node],
         pagination: any GraphForwardPaginatable,
         cursor: CursorType
@@ -44,7 +52,7 @@ extension BasicConnection {
         self.init(nodes: nodes, pagination: pagination.current, cursor: cursor)
     }
     /// Build a connection from nodes with optional pagination input.
-    init(
+    public init(
         nodes: [Node],
         pagination: GraphPagination?,
         cursor: CursorType

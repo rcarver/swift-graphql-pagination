@@ -13,7 +13,7 @@ public protocol GraphBackwardPaginatable {
 }
 
 /// The interface describing pagination inputs.
-protocol GraphPaginatable: GraphForwardPaginatable, GraphBackwardPaginatable {}
+public protocol GraphPaginatable: GraphForwardPaginatable, GraphBackwardPaginatable {}
 
 extension GraphForwardPaginatable {
     /// Construct the real pagination from available inputs.
@@ -70,6 +70,17 @@ public struct GraphPageInfo: Equatable, Codable {
     public let hasNextPage: Bool
     public let startCursor: Cursor?
     public let endCursor: Cursor?
+    public init(
+        hasPreviousPage: Bool,
+        hasNextPage: Bool,
+        startCursor: Cursor?,
+        endCursor: Cursor?
+    ) {
+        self.hasPreviousPage = hasPreviousPage
+        self.hasNextPage = hasNextPage
+        self.startCursor = startCursor
+        self.endCursor = endCursor
+    }
 }
 
 extension GraphPageInfo {

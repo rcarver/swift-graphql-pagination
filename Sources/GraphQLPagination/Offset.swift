@@ -11,27 +11,34 @@ public struct OffsetPagination: Equatable {
     }
 }
 
-extension GraphPaginatable {
+extension GraphPagination {
     /// Convert graph pagination to offset pagination.
-    func makeOffsetPagination() -> OffsetPagination {
-        switch self.current {
+    public func makeOffsetPagination() -> OffsetPagination {
+        switch self {
         case let .forward(forward): forward.makeOffsetPagination()
         case let .backward(backward): backward.makeOffsetPagination()
-        case .none: OffsetPagination()
         }
+    }
+}
+
+extension GraphPaginatable {
+    /// Convert graph pagination to offset pagination.
+    public func makeOffsetPagination() -> OffsetPagination {
+        guard let current = self.current else { return OffsetPagination() }
+        return current.makeOffsetPagination()
     }
 }
 
 extension GraphForwardPaginatable {
     /// Convert graph pagination to offset pagination.
-    func makeOffsetPagination() -> OffsetPagination {
+    public func makeOffsetPagination() -> OffsetPagination {
         switch (self.after?.intValue(), self.first) {
         case let (.some(after), .some(first)):
             return OffsetPagination(offset: after, count: first + 2)
         case let (.some(after), .none):
             return OffsetPagination(offset: after, count: nil)
         case let (.none, .some(first)):
-            return OffsetPagination(offset: 0, count: first + 2)
+            return OffsetPagination(offset: 0, count: first + 1)
         case (.none, .none):
             return OffsetPagination(offset: 0, count: nil)
         }
@@ -40,14 +47,14 @@ extension GraphForwardPaginatable {
 
 extension GraphBackwardPaginatable {
     /// Convert graph pagination to offset pagination.
-    func makeOffsetPagination() -> OffsetPagination {
+    public func makeOffsetPagination() -> OffsetPagination {
         switch (self.before?.intValue(), self.last) {
         case let (.some(before), .some(last)):
             return OffsetPagination(offset: before - last - 1, count: last + 2)
         case let (.some(before), .none):
             return OffsetPagination(offset: 0, count: before + 1)
         case let (.none, .some(last)):
-            return OffsetPagination(offset: 0, count: last + 2)
+            return OffsetPagination(offset: 0, count: last + 1)
         case (.none, .none):
             return OffsetPagination(offset: 0, count: nil)
         }

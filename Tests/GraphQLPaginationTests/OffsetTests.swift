@@ -15,7 +15,7 @@ final class OffsetTests: XCTestCase {
         )
         XCTAssertNoDifference(
             Forward(first: 10, after: nil).makeOffsetPagination(),
-            OffsetPagination(offset: 0, count: 12)
+            OffsetPagination(offset: 0, count: 11)
         )
         XCTAssertNoDifference(
             Forward(first: 10, after: Cursor(intValue: 3)).makeOffsetPagination(),
@@ -29,7 +29,7 @@ final class OffsetTests: XCTestCase {
     func test_forward_invalid() {
         XCTAssertNoDifference(
             Forward(first: 10, after: Cursor(rawValue: "a")).makeOffsetPagination(),
-            OffsetPagination(offset: 0, count: 12)
+            OffsetPagination(offset: 0, count: 11)
         )
     }
 
@@ -40,7 +40,7 @@ final class OffsetTests: XCTestCase {
         )
         XCTAssertNoDifference(
             Backward(last: 10, before: nil).makeOffsetPagination(),
-            OffsetPagination(offset: 0, count: 12)
+            OffsetPagination(offset: 0, count: 11)
         )
         XCTAssertNoDifference(
             Backward(last: 3, before: Cursor(intValue: 10)).makeOffsetPagination(),
@@ -54,7 +54,7 @@ final class OffsetTests: XCTestCase {
     func test_backward_invalid() {
         XCTAssertNoDifference(
             Backward(last: 10, before: Cursor(rawValue: "a")).makeOffsetPagination(),
-            OffsetPagination(offset: 0, count: 12)
+            OffsetPagination(offset: 0, count: 11)
         )
     }
 }
