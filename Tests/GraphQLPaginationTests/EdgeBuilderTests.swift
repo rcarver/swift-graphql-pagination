@@ -9,6 +9,10 @@ final class BoundedTests: XCTestCase {
         var first: Int?
         var after: Cursor?
     }
+    struct Backward: GraphBackwardPaginatable {
+        var last: Int?
+        var before: Cursor?
+    }
     struct TestNode: Equatable, GraphCursorable {
         let id: String
         var cursor: Cursor { .init(rawValue: self.id) }
@@ -152,6 +156,143 @@ final class BoundedTests: XCTestCase {
                 range: 1..<3,
                 nodes: [d, e],
                 cursors: [3, 4]
+            )
+        )
+    }
+
+    func test_backward_identified() {
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<5,
+                nodes: [a, b, c, d, e],
+                cursors: ["a", "b", "c", "d", "e"]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 2),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 3..<5,
+                nodes: [d, e],
+                cursors: ["d", "e"]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(before: "d"),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<3,
+                nodes: [a, b, c],
+                cursors: ["a", "b", "c"]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 2, before: "d"),
+                identified: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [b, c],
+                cursors: ["b", "c"]
+            )
+        )
+    }
+    func test_backward_indexed() {
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<5,
+                nodes: [a, b, c, d, e],
+                cursors: [0, 1, 2, 3, 4]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 2),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 3..<5,
+                nodes: [d, e],
+                cursors: [3, 4]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(before: 4),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 0..<4,
+                nodes: [a, b, c, d],
+                cursors: [0, 1, 2, 3]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 2, before: 4),
+                indexed: [a, b, c, d, e]
+            ),
+            Bounded(
+                range: 2..<4,
+                nodes: [c, d],
+                cursors: [2, 3]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(before: 3),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 0..<3,
+                nodes: [a, b, c],
+                cursors: [0, 1, 2]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 2, before: 3),
+                indexed: [a, b, c, d]
+            ),
+            Bounded(
+                range: 1..<3,
+                nodes: [b, c],
+                cursors: [1, 2]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(before: 2),
+                indexed: [a, b, c]
+            ),
+            Bounded(
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: [0, 1]
+            )
+        )
+        XCTAssertNoDifference(
+            Bounded(
+                backward: Backward(last: 2, before: 2),
+                indexed: [a, b, c]
+            ),
+            Bounded(
+                range: 0..<2,
+                nodes: [a, b],
+                cursors: [0, 1]
             )
         )
     }

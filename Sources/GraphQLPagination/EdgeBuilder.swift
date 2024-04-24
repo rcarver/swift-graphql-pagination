@@ -214,7 +214,7 @@ extension Bounded {
         let cursors = nodes.indices.map { Cursor(intValue: $0 + offset) }
         self.init(forward: forward, nodes: nodes, cursors: cursors)
     }
-    init(forward: any GraphForwardPaginatable, nodes: [T], cursors: [Cursor]) {
+    private init(forward: any GraphForwardPaginatable, nodes: [T], cursors: [Cursor]) {
         switch (forward.first, forward.after) {
         case let (.some(first), .none):
             self.range = 0..<first
@@ -224,6 +224,34 @@ extension Bounded {
         case let (.some(first), .some(after)):
             let index = cursors.firstIndex(where: { $0 == after }) ?? -1
             self.range = (index + 1)..<(index + 1 + first)
+        case (.none, .none):
+            self.range = 0..<nodes.count
+        }
+        self.nodes = Array(nodes[range])
+        self.cursors = Array(cursors[range])
+    }
+}
+
+extension Bounded {
+    init(backward: any GraphBackwardPaginatable, identified nodes: [T]) where T: GraphCursorable {
+        let cursors = nodes.map(\.cursor)
+        self.init(backward: backward, nodes: nodes, cursors: cursors)
+    }
+    init(backward: any GraphBackwardPaginatable, indexed nodes: [T]) {
+        let offset = nodes.count - 1 - (backward.before?.intValue() ?? nodes.count - 1)
+        let cursors = nodes.indices.map { Cursor(intValue: $0 + offset) }
+        self.init(backward: backward, nodes: nodes, cursors: cursors)
+    }
+    private init(backward: any GraphBackwardPaginatable, nodes: [T], cursors: [Cursor]) {
+        switch (backward.last, backward.before) {
+        case let (.some(last), .none):
+            self.range = (nodes.count - last)..<nodes.count
+        case let (.none, .some(before)):
+            let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
+            self.range = 0..<index
+        case let (.some(last), .some(before)):
+            let index = cursors.lastIndex(where: { $0 == before }) ?? nodes.count
+            self.range = (index - last)..<index
         case (.none, .none):
             self.range = 0..<nodes.count
         }
