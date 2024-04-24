@@ -17,7 +17,7 @@ extension EdgeBuilder {
         cursor: CursorType,
         nodes: [Node],
         pagination: GraphPagination?,
-        transform: @escaping (Node, Cursor, Int) -> Edge
+        transform: @escaping (Cursor, Node) -> Edge
     ) -> EdgesConstruction<Edge> {
         let builder = EdgeBuilder(nodes: nodes, transform: transform)
         return builder.makeEdges(cursor: cursor, pagination: pagination)
@@ -26,7 +26,7 @@ extension EdgeBuilder {
 
 struct EdgeBuilder<Node: GraphCursorable, Edge> {
     let nodes: [Node]
-    let transform: (Node, Cursor, Int) -> Edge
+    let transform: (Cursor, Node) -> Edge
 }
 
 struct EdgesConstruction<Edge> {
@@ -50,7 +50,7 @@ extension EdgeBuilder {
         }
         switch cursor {
         case .identifier:
-            let edges = self.nodes.enumerated().map { self.transform($1, $1.cursor, $0) }
+            let edges = self.nodes.map { self.transform($0.cursor, $0) }
             return EdgesConstruction(edges: edges, pageInfo: GraphPageInfo(
                 hasPreviousPage: false,
                 hasNextPage: false,
@@ -58,7 +58,7 @@ extension EdgeBuilder {
                 endCursor: nodes.last?.cursor
             ))
         case .index:
-            let edges = self.nodes.enumerated().map { self.transform($1, Cursor(intValue: $0), $0) }
+            let edges = self.nodes.enumerated().map { self.transform(Cursor(intValue: $0), $1) }
             return EdgesConstruction(edges: edges, pageInfo: GraphPageInfo(
                 hasPreviousPage: false,
                 hasNextPage: false,
@@ -74,7 +74,7 @@ extension EdgeBuilder {
             nodes: self.nodes
         )
         return EdgesConstruction(
-            edges: bounded.zipped.enumerated().map { self.transform($0.element.0, $0.element.1, $0.offset) },
+            edges: bounded.zipped.map { self.transform($0.1, $0.0) },
             pageInfo: GraphPageInfo(bounded: bounded)
         )
     }
@@ -85,12 +85,11 @@ extension EdgeBuilder {
             nodes: self.nodes
         )
         return EdgesConstruction(
-            edges: bounded.zipped.enumerated().map { self.transform($0.element.0, $0.element.1, $0.offset) },
+            edges: bounded.zipped.map { self.transform($0.1, $0.0) },
             pageInfo: GraphPageInfo(bounded: bounded)
         )
     }
 }
-
 
 struct Bounded<T> {
     let range: Range<Int>

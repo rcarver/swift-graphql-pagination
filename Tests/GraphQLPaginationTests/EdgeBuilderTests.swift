@@ -348,9 +348,8 @@ final class EdgeBuilderTests: XCTestCase {
         var cursor: Cursor { .init(rawValue: self.id) }
     }
     struct TestEdge: Equatable {
-        let node: TestNode
         let cursor: Cursor
-        let index: Int
+        let node: TestNode
     }
     let a = TestNode(id: "a")
     let b = TestNode(id: "b")
@@ -364,9 +363,9 @@ final class EdgeBuilderTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: a, cursor: "a", index: 0),
-                    TestEdge(node: b, cursor: "b", index: 1),
-                    TestEdge(node: c, cursor: "c", index: 2),
+                    TestEdge(cursor: "a", node: a),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: false,
@@ -382,9 +381,9 @@ final class EdgeBuilderTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: a, cursor: 0, index: 0),
-                    TestEdge(node: b, cursor: 1, index: 1),
-                    TestEdge(node: c, cursor: 2, index: 2),
+                    TestEdge(cursor: 0, node: a),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: false,
@@ -435,9 +434,8 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
         var cursor: Cursor { .init(rawValue: self.id) }
     }
     struct TestEdge: Equatable {
-        let node: TestNode
         let cursor: Cursor
-        let index: Int
+        let node: TestNode
     }
 
     typealias Forward = GraphForwardPagination
@@ -456,9 +454,9 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: a, cursor: "a", index: 0),
-                    TestEdge(node: b, cursor: "b", index: 1),
-                    TestEdge(node: c, cursor: "c", index: 2),
+                    TestEdge(cursor: "a", node: a),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: false,
@@ -475,9 +473,9 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: a, cursor: 0, index: 0),
-                    TestEdge(node: b, cursor: 1, index: 1),
-                    TestEdge(node: c, cursor: 2, index: 2),
+                    TestEdge(cursor: 0, node: a),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: false,
@@ -500,9 +498,9 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: "b", index: 0),
-                    TestEdge(node: c, cursor: "c", index: 1),
-                    TestEdge(node: d, cursor: "d", index: 2),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
+                    TestEdge(cursor: "d", node: d),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -519,9 +517,9 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: 1, index: 0),
-                    TestEdge(node: c, cursor: 2, index: 1),
-                    TestEdge(node: d, cursor: 3, index: 2),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
+                    TestEdge(cursor: 3, node: d),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -544,8 +542,8 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: "b", index: 0),
-                    TestEdge(node: c, cursor: "c", index: 1),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -562,8 +560,8 @@ final class EdgeBuilderForwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: 1, index: 0),
-                    TestEdge(node: c, cursor: 2, index: 1),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -583,9 +581,8 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
         var cursor: Cursor { .init(rawValue: self.id) }
     }
     struct TestEdge: Equatable {
-        let node: TestNode
         let cursor: Cursor
-        let index: Int
+        let node: TestNode
     }
 
     typealias Backward = GraphBackwardPagination
@@ -607,9 +604,9 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: "b", index: 0),
-                    TestEdge(node: c, cursor: "c", index: 1),
-                    TestEdge(node: d, cursor: "d", index: 2),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
+                    TestEdge(cursor: "d", node: d),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -626,9 +623,9 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: 1, index: 0),
-                    TestEdge(node: c, cursor: 2, index: 1),
-                    TestEdge(node: d, cursor: 3, index: 2),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
+                    TestEdge(cursor: 3, node: d),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -651,9 +648,9 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: a, cursor: "a", index: 0),
-                    TestEdge(node: b, cursor: "b", index: 1),
-                    TestEdge(node: c, cursor: "c", index: 2),
+                    TestEdge(cursor: "a", node: a),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: false,
@@ -670,9 +667,9 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: a, cursor: 0, index: 0),
-                    TestEdge(node: b, cursor: 1, index: 1),
-                    TestEdge(node: c, cursor: 2, index: 2),
+                    TestEdge(cursor: 0, node: a),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: false,
@@ -695,8 +692,8 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: "b", index: 0),
-                    TestEdge(node: c, cursor: "c", index: 1),
+                    TestEdge(cursor: "b", node: b),
+                    TestEdge(cursor: "c", node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
@@ -713,8 +710,8 @@ final class EdgeBuilderBackwardPaginationTests: XCTestCase {
             ),
             EdgesConstruction(
                 edges: [
-                    TestEdge(node: b, cursor: 1, index: 0),
-                    TestEdge(node: c, cursor: 2, index: 1),
+                    TestEdge(cursor: 1, node: b),
+                    TestEdge(cursor: 2, node: c),
                 ],
                 pageInfo: GraphPageInfo(
                     hasPreviousPage: true,
