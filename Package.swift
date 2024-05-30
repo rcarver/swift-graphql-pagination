@@ -12,7 +12,10 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "GraphQLPagination"
+            name: "GraphQLPagination",
+            swiftSettings: [
+                .enableExperimentalFeature("StrictConcurrency"),
+            ]
         ),
         .testTarget(
             name: "GraphQLPaginationTests",

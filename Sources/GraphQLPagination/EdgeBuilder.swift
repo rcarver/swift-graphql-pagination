@@ -1,7 +1,7 @@
 import Foundation
 
 /// Describes how to create the cursor for a set of edges.
-public enum CursorType {
+public enum CursorType: Hashable, Sendable {
     /// The edge cursor is based on the node's `cursor` property.
     case identifier
     /// The edge cursor is based on the index of the node.
@@ -37,6 +37,7 @@ public struct EdgesConstruction<Edge> {
 }
 
 extension EdgesConstruction: Equatable where Edge: Equatable {}
+extension EdgesConstruction: Sendable where Edge: Sendable {}
 
 /// A type that can transform a set of nodes into edges with pagination logic.
 public struct EdgeBuilder<Node: GraphCursorable, Edge> {
@@ -96,6 +97,7 @@ struct Bounded<T> {
 }
 
 extension Bounded: Equatable where T: Equatable {}
+extension Bounded: Sendable where T: Sendable {}
 
 fileprivate extension Bounded {
     init(range: Range<Int>, count: Int, nodes: [T], cursors: [Cursor]) {

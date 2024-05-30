@@ -2,7 +2,7 @@ import Foundation
 
 /// Traditional offset pagination, describing the offset of
 /// the first record, and the number of records to return.
-public struct OffsetPagination: Equatable {
+public struct OffsetPagination: Equatable, Sendable {
     public var offset: Int
     public var count: Int?
     public init(offset: Int = 0, count: Int? = nil) {

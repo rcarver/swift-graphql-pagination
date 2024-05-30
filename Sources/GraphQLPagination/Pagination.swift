@@ -1,7 +1,7 @@
 import Foundation
 
 /// Pagination.
-public enum GraphPagination {
+public enum GraphPagination: Equatable, Sendable {
     case forward(GraphForwardPagination)
     case backward(GraphBackwardPagination)
 }
@@ -50,7 +50,7 @@ extension GraphPaginatable {
 }
 
 /// A concrete forward pagination input.
-public struct GraphForwardPagination: GraphForwardPaginatable {
+public struct GraphForwardPagination: Equatable, Sendable, GraphForwardPaginatable {
     public var first: Int?
     public var after: Cursor?
     public init(first: Int? = nil, after: Cursor? = nil) {
@@ -60,7 +60,7 @@ public struct GraphForwardPagination: GraphForwardPaginatable {
 }
 
 /// A concrete backward pagination input.
-public struct GraphBackwardPagination: GraphBackwardPaginatable {
+public struct GraphBackwardPagination: Equatable, Sendable, GraphBackwardPaginatable {
     public var last: Int?
     public var before: Cursor?
     public init(last: Int? = nil, before: Cursor? = nil) {
@@ -70,7 +70,7 @@ public struct GraphBackwardPagination: GraphBackwardPaginatable {
 }
 
 /// Describes the state of pagination for output.
-public struct GraphPageInfo: Equatable, Codable {
+public struct GraphPageInfo: Equatable, Codable, Sendable {
     public let hasPreviousPage: Bool
     public let hasNextPage: Bool
     public let startCursor: Cursor?
