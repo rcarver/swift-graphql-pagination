@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Cursor: RawRepresentable, Hashable {
+public struct Cursor: RawRepresentable, Hashable, Sendable {
     public var rawValue: String
     public init(rawValue: String) {
         self.rawValue = rawValue
