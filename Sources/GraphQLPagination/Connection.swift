@@ -40,7 +40,7 @@ extension BasicConnection {
         nodes: [Node],
         pagination: any GraphPaginatable,
         cursor: CursorType
-    ) where Node: GraphCursorable {
+    ) where Node: GraphCursorable & Sendable {
         self.init(nodes: nodes, pagination: pagination.pagination, cursor: cursor)
     }
     /// Build a connection from nodes for any forward paginatable input.
@@ -48,7 +48,7 @@ extension BasicConnection {
         nodes: [Node],
         pagination: any GraphForwardPaginatable,
         cursor: CursorType
-    ) where Node: GraphCursorable {
+    ) where Node: GraphCursorable & Sendable {
         self.init(nodes: nodes, pagination: pagination.pagination, cursor: cursor)
     }
     /// Build a connection from nodes with optional pagination input.
@@ -56,7 +56,7 @@ extension BasicConnection {
         nodes: [Node],
         pagination: GraphPagination?,
         cursor: CursorType
-    ) where Node: GraphCursorable {
+    ) where Node: GraphCursorable & Sendable {
         let result = EdgeBuilder.build(
             cursor: cursor,
             nodes: nodes,
