@@ -70,5 +70,7 @@ extension BasicConnection {
 
 extension BasicConnection: Codable where Node: Codable {}
 extension BasicConnection: Equatable where Node: Equatable {}
+extension BasicConnection: Sendable where Node: Sendable {}
 extension BasicEdge: Codable where Node: Codable {}
 extension BasicEdge: Equatable where Node: Equatable {}
+extension BasicEdge: Sendable where Node: Sendable {}
